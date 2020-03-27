@@ -1,0 +1,13 @@
+.selected {
+    stroke: white;
+    stroke-width: 1.5px;
+}
+
+.boundary {
+    stroke: black;
+    stroke-width: 0.5px; 
+}
+
+.hidden {
+    display: none;
+}
