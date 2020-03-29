@@ -5,6 +5,7 @@ import { DashboardComponent } from './dashboard.component';
 import { ThirdPartyModule } from '../thirdparty.module';
 import { TrendChartComponent } from './trend-chart/trend-chart.component';
 import { HttpClientModule } from '@angular/common/http';
+import { LineChartComponent } from './line-chart/line-chart.component';
 
 @NgModule({
     imports: [
@@ -15,7 +16,8 @@ import { HttpClientModule } from '@angular/common/http';
     ],
     declarations: [
         DashboardComponent,
-        TrendChartComponent
+        TrendChartComponent,
+        LineChartComponent
     ],
     providers: []
 })

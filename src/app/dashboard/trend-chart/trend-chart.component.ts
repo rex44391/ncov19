@@ -1,10 +1,6 @@
 import { Component, ViewChild, ElementRef, OnChanges, Input, ViewEncapsulation } from "@angular/core";
 import * as d3 from 'd3';
 import { feature } from 'topojson';;
-import { DataModel } from 'src/app/data/data.model';
-import { HttpClient } from '@angular/common/http';
-import { combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
 
 @Component({
     selector: 'app-trend-chart',
@@ -15,13 +11,16 @@ import { map } from 'rxjs/operators';
 export class TrendChartComponent implements OnChanges {
     @ViewChild('chart') private chartContainer: ElementRef;
 
-    @Input() data: DataModel[];
+    // @Input() data: DataModel[];
+    @Input() trendData: any;
+    world;
+    ncovData;
 
-    margin = { top: 20, right: 20, bottom: 30, left: 40 };
-
-    constructor(private httpClient: HttpClient) { }
+    constructor() { }
     ngOnChanges() {
-        if (!this.data) { return; }
+        if (!this.trendData) { return; }
+        this.world = this.trendData.world;
+        this.ncovData = this.trendData.ncov;
         this.createChart();
     }
 
@@ -31,7 +30,6 @@ export class TrendChartComponent implements OnChanges {
         d3.select('svg').remove();
 
         const element = this.chartContainer.nativeElement;
-        const data = this.data;
 
 
         const width = 962;
@@ -40,7 +38,6 @@ export class TrendChartComponent implements OnChanges {
 
         let usa, canada;
         let states;
-        let ncovData;
 
         let initX;
         let mouseClicked = false;
@@ -139,40 +136,43 @@ export class TrendChartComponent implements OnChanges {
             // }
         }
 
-        function showTooltip(d) {
-            let confirmed = 'unknown';
-            let deaths = 'unknown';
-            let recovered = 'unknown';
-            if(ncovData[d.properties.name]) {
-                let dataTemp = ncovData[d.properties.name][ncovData[d.properties.name].length - 1];
-                confirmed = dataTemp.confirmed;
-                deaths = dataTemp.deaths;
-                recovered = dataTemp.recovered;
-            }
+        function tooltipClosure(ncovData: any) {
+            return (d: any) => {
+                let confirmed = 'unknown';
+                let deaths = 'unknown';
+                let recovered = 'unknown';
+                if(ncovData[d.properties.name]) {
+                    let dataTemp = ncovData[d.properties.name][ncovData[d.properties.name].length - 1];
+                    confirmed = dataTemp.confirmed;
+                    deaths = dataTemp.deaths;
+                    recovered = dataTemp.recovered;
+                }
 
-            let label = `
-                <b>${d.properties.name}</b><br>
-                confirmed: ${confirmed}<br>
-                death: ${deaths}<br>
-                recovered: ${recovered}
-            `;
-            let mouse = d3.mouse(svg.node())
-                .map(function (d: any) { return parseInt(d); });
-            tooltip.classed('hidden', false)
-                .attr('style', `
-                    left: ${mouse[0] + offsetL}px;
-                    top: ${mouse[1] + offsetT}px;
-                    color: #222;
-                    background: #fff;
-                    border-radius: 3px;
-                    font-family:"avenir next", Arial, sans-serif;
-                    box-shadow: 0px 0px 2px 0px #a6a6a6; 
-                    padding: .2em; 
-                    text-shadow: #f5f5f5 0 1px 0;
-                    opacity: 0.8;
-                    position: absolute;
-                `)
-                .html(label);
+                let label = `
+                    <b>${d.properties.name}</b><br>
+                    confirmed: ${confirmed}<br>
+                    death: ${deaths}<br>
+                    recovered: ${recovered}
+                `;
+                let mouse = d3.mouse(svg.node())
+                    .map(function (d: any) { return parseInt(d); });
+                tooltip.classed('hidden', false)
+                    .attr('style', `
+                        left: ${mouse[0] + offsetL}px;
+                        top: ${mouse[1] + offsetT}px;
+                        color: #222;
+                        background: #fff;
+                        border-radius: 3px;
+                        font-family:"avenir next", Arial, sans-serif;
+                        box-shadow: 0px 0px 2px 0px #a6a6a6; 
+                        padding: .2em; 
+                        text-shadow: #f5f5f5 0 1px 0;
+                        opacity: 0.8;
+                        position: absolute;
+                    `)
+                    .html(label);
+
+                }
         }
 
         function selected() {
@@ -180,98 +180,78 @@ export class TrendChartComponent implements OnChanges {
             d3.select(this).classed('selected', true);
         }
 
-        function heatColor(d: any) {
-            let countryName = d.properties.name;
-            if(ncovData[countryName]) {
-                let confirmed = ncovData[countryName][ncovData[countryName].length - 1].confirmed;
-                switch (true) {
-                    case (confirmed === 0):
-                        return '#F2F2F2';
-                    case (confirmed < 10):
-                        return '#FFE6E6';
-                    case (confirmed < 100):
-                        return '#FFB3B3';
-                    case (confirmed < 500):
-                        return '#FF8080';
-                    case (confirmed < 1000):
-                        return '#FF4D4D';
-                    case (confirmed < 5000):
-                        return '#FF1A1A';
-                    case (confirmed < 10000):
-                        return '#E60000';
-                    case (confirmed < 25000):
-                        return '#B30000';
-                    case (confirmed < 50000):
-                        return '#800000';
-                    default:
-                        return '#4D0000';
+        function colorClosure(ncovData: any) {
+            return (d: any) => {
+                let countryName = d.properties.name;
+                if(ncovData && ncovData[countryName]) {
+                    let confirmed = ncovData[countryName][ncovData[countryName].length - 1].confirmed;
+                    switch (true) {
+                        case (confirmed === 0):
+                            return '#F2F2F2';
+                        case (confirmed < 10):
+                            return '#FFE6E6';
+                        case (confirmed < 100):
+                            return '#FFB3B3';
+                        case (confirmed < 500):
+                            return '#FF8080';
+                        case (confirmed < 1000):
+                            return '#FF4D4D';
+                        case (confirmed < 5000):
+                            return '#FF1A1A';
+                        case (confirmed < 10000):
+                            return '#E60000';
+                        case (confirmed < 25000):
+                            return '#B30000';
+                        case (confirmed < 50000):
+                            return '#800000';
+                        default:
+                            return '#4D0000';
                 }
-            } else {
-                // console.log(ncovData);
-                // console.log(countryName);
+                } else {
+                    // console.log(ncovData);
+                    // console.log(countryName);
+                }
+                return '#F2F2F2';
+
             }
-            return '#F2F2F2';
         }
-
-        const countryNameTable = {
-            'Taiwan*': 'Taiwan',
-            'Czechia': 'Czechia',
-            'US': 'United States',
-            'Korea, South': 'Korea',
-            'Bosnia and Herzegovina': 'Bosnia and Herz.'
-        };
         
+        let mapFeatures: any = (feature(this.world as any, (this.world as any).objects.countries));
+        g.append('g')
+            .attr('class', 'boundary')
+            .selectAll('boundary')
+            .data(mapFeatures.features)
+            .enter().append('path')
+            .attr('d', path)
+            .attr('name', function (d: any) { return d.properties.name; })
+            .attr('id', function (d: any) { return d.id })
+            .style('fill', colorClosure(this.ncovData))
+            .on('click', selected)
+            .on('mousemove', tooltipClosure(this.ncovData))
+            .on('mouseout', function (d, i) {
+                tooltip.classed('hidden', true);
+             })
+            .attr('d', path);
 
+        // usa = d3.select('#USA');
+        // canada = d3.select('#CAN');
+        // let mapFeaturesStates: any = (feature(world as any, (world as any).objects.states));
+        // g.append('g')
+        //     .attr('class', 'boundary state hidden')
+        //     .selectAll('boundary')
+        //     .data(mapFeaturesStates.features)
+        //     .enter().append('path')
+        //     .attr('d', path)
+        //     .attr('name', function (d: any) { return d.properties.name; })
+        //     .attr('id', function (d: any) { return d.id })
+        //     .on('click', selected)
+        //     .on('mousemove', showTooltip)
+        //     .on('mouseout', function (d, i) {
+        //         tooltip.classed('hidden', true);
+        //     })
+        //     .attr('d', path);
+        // states = d3.selectAll('.state');
 
-        let world$ = this.httpClient.get('https://gist.githubusercontent.com/MaciejKus/61e9ff1591355b00c1c1caf31e76a668/raw/4a5d012dc2df1aae1c36e2fdd414c21824329452/combined2.json');
-        let ncov$ = this.httpClient.get('https://pomber.github.io/covid19/timeseries.json');
-        combineLatest(world$, ncov$).pipe(
-            map(([world, ncov]) => {
-                return { world, ncov };
-            })
-        ).subscribe(({ world, ncov }) => {
-            for(let key in countryNameTable) {
-                ncov[countryNameTable[key]] = ncov[key];
-                delete ncov[key];
-            }
-            ncovData = ncov;
-            let mapFeatures: any = (feature(world as any, (world as any).objects.countries));
-            g.append('g')
-                .attr('class', 'boundary')
-                .selectAll('boundary')
-                .data(mapFeatures.features)
-                .enter().append('path')
-                .attr('d', path)
-                .attr('name', function (d: any) { return d.properties.name; })
-                .attr('id', function (d: any) { return d.id })
-                .style('fill', heatColor)
-                .on('click', selected)
-                .on('mousemove', showTooltip)
-                .on('mouseout', function (d, i) {
-                    tooltip.classed('hidden', true);
-                })
-                .attr('d', path);
-
-            // usa = d3.select('#USA');
-            // canada = d3.select('#CAN');
-            // let mapFeaturesStates: any = (feature(world as any, (world as any).objects.states));
-            // g.append('g')
-            //     .attr('class', 'boundary state hidden')
-            //     .selectAll('boundary')
-            //     .data(mapFeaturesStates.features)
-            //     .enter().append('path')
-            //     .attr('d', path)
-            //     .attr('name', function (d: any) { return d.properties.name; })
-            //     .attr('id', function (d: any) { return d.id })
-            //     .on('click', selected)
-            //     .on('mousemove', showTooltip)
-            //     .on('mouseout', function (d, i) {
-            //         tooltip.classed('hidden', true);
-            //     })
-            //     .attr('d', path);
-            // states = d3.selectAll('.state');
-
-        })
     }
 
 
