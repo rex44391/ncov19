@@ -62,6 +62,10 @@ export class DashboardService {
         })
     }
 
+    getStateSnapshot(): DashboardState {
+        return { ..._state };
+    }
+
     private getChartData(ncov, dataTypeSelected, countrySelected, dateSelected) {
 
     }
