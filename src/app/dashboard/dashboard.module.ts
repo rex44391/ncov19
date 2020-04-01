@@ -6,6 +6,9 @@ import { ThirdPartyModule } from '../thirdparty.module';
 import { TrendChartComponent } from './trend-chart/trend-chart.component';
 import { HttpClientModule } from '@angular/common/http';
 import { LineChartComponent } from './line-chart/line-chart.component';
+import { ControlPanelComponent } from './control-panel/control-panel.component';
+import { InfoCardComponent } from './info-card/info-card.component';
+import { DashboardService } from './dashboard.service';
 
 @NgModule({
     imports: [
@@ -17,8 +20,12 @@ import { LineChartComponent } from './line-chart/line-chart.component';
     declarations: [
         DashboardComponent,
         TrendChartComponent,
-        LineChartComponent
+        LineChartComponent,
+        ControlPanelComponent,
+        InfoCardComponent
     ],
-    providers: []
+    providers: [
+        DashboardService
+    ]
 })
 export class DashboardModule {}

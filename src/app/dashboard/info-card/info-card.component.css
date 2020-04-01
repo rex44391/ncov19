@@ -1,0 +1,41 @@
+.basic-grid {
+    width: 60%;
+    margin: 10px auto 160px;
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+}
+.card {
+    height: 150px;
+    border-color: #dcdcdc;
+    border-width: 0.5px;
+    border-style: solid;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+}
+.card-title {
+    height: 30%;
+    border-radius: 5px 5px 0px 0px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: bold;
+    color: white;
+    background-color: green;
+}
+
+.card-content {
+    height: 60%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 25px;
+    font-family: Georgia, 'Times New Roman', Times, serif;
+}
+
+@media (max-width:500px){
+    .basic-grid {width: 90%;}
+}

@@ -24,10 +24,16 @@ export class TrendChartComponent implements OnChanges {
         this.createChart();
     }
 
-
+    // private updateChart() {
+    //     var a = d3.selectAll('.countries')
+    //         .transition()
+    //         .duration(1000)
+    //         .style('fill', '#FFFFFF');
+    //     console.log(a);
+    // }
 
     private createChart(): void {
-        d3.select('svg').remove();
+        // d3.select('svg').remove();
 
         const element = this.chartContainer.nativeElement;
 
@@ -225,6 +231,7 @@ export class TrendChartComponent implements OnChanges {
             .attr('d', path)
             .attr('name', function (d: any) { return d.properties.name; })
             .attr('id', function (d: any) { return d.id })
+            .attr('class', 'countries')
             .style('fill', colorClosure(this.ncovData))
             .on('click', selected)
             .on('mousemove', tooltipClosure(this.ncovData))
