@@ -126,7 +126,7 @@ export class LineChartComponent implements OnChanges {
       };
     }
     for (var yObj in yObjs) {
-      yObjs[yObj].line = d3.line().curve(d3.curveCardinal).x(function (d) {
+      yObjs[yObj].line = d3.line().curve(d3.curveLinear).x(function (d) {
         return chartObj['xScale'](chartObj['xFunct'](d));
       }).y(getYScaleFn(yObj));
     }

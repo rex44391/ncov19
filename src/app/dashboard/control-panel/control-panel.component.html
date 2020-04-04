@@ -1,31 +1,53 @@
 <div class="panel">
-    <div>
-        <input type="radio" id="r1" name="dataType" 
-            value="confirmed" (change)="onDataTypeSelected($event)"
-            checked="checked"/>
-        <label for="r1"><span></span>Confirmed</label>
-        <input type="radio" id="r2" name="dataType" 
-            value="deaths" (change)="onDataTypeSelected($event)"/>
-        <label for="r2"><span></span>Deaths</label>
-        <input type="radio" id="r3" name="dataType" 
-            value="recovered" (change)="onDataTypeSelected($event)"/>
-        <label for="r3"><span></span>Recovered</label>
-    </div>
-    <div class="slidecontainer">
-        <input type="range"
-            #myRange 
-            min="0" 
-            [max]="maxDate"
-            [ngModel]="sliderValue | async"
-            (ngModelChange)="sliderValue.next(myRange.value)"
-            class="slider" 
-            id="my-range" [disabled]="isSliderDisabled">
-    </div>
-    <button id="play-button" class="btn" [hidden]="isPlaying"
-        (click)="onClickPlay()">
-        <i class="fa fa-play" [hidden]="isPlaying"></i>
+  <div>
+    <input
+      type="radio"
+      id="r1"
+      name="dataType"
+      value="confirmed"
+      (change)="onDataTypeSelected($event)"
+      checked="checked"
+    />
+    <label for="r1"><span></span>Confirmed</label>
+    <input
+      type="radio"
+      id="r2"
+      name="dataType"
+      value="deaths"
+      (change)="onDataTypeSelected($event)"
+    />
+    <label for="r2"><span></span>Deaths</label>
+    <input
+      type="radio"
+      id="r3"
+      name="dataType"
+      value="recovered"
+      (change)="onDataTypeSelected($event)"
+    />
+    <label for="r3"><span></span>Recovered</label>
+  </div>
+  <div class="slidecontainer">
+    <input
+      type="range"
+      #myRange
+      min="0"
+      [max]="maxDate"
+      [ngModel]="sliderValue | async"
+      (ngModelChange)="sliderValue.next(myRange.value)"
+      class="slider"
+      id="my-range"
+      [disabled]="isSliderDisabled"
+    />
+    <button
+      id="play-button"
+      class="btn"
+      [hidden]="isPlaying"
+      (click)="onClickPlay()"
+    >
+      <i class="fa fa-play" [hidden]="isPlaying"></i>
     </button>
     <button id="stop-button" class="btn" [hidden]="!isPlaying">
-        <i class="fa fa-stop"></i>
+      <i class="fa fa-stop"></i>
     </button>
+  </div>
 </div>

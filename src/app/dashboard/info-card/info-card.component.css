@@ -1,6 +1,6 @@
 .basic-grid {
     width: 60%;
-    margin: 10px auto 160px;
+    margin: 90px auto 10px;
     display: grid;
     gap: 1rem;
     grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));

@@ -1,16 +1,9 @@
 <div *ngIf="(vm$ | async) as vm">
-    <app-trend-chart
-        [world]="vm.world"
-        [trendData]="vm.trend_ncov"
-        [dataTypeSelected]="vm.dataTypeSelected"
-        (selectCountry)="onSelectCountry($event)">
-    </app-trend-chart>
-    <app-line-chart 
-        [lineData]="vm.line_ncov"></app-line-chart>
     <app-control-panel
         [maxDate]="vm.maxDate"
         (selectDataType)="onSelectDataType($event)"
-        (selectDate)="onSelectDate($event)"></app-control-panel>
+        (selectDate)="onSelectDate($event)">
+    </app-control-panel>
     <app-info-card 
         [countrySelected]="vm.countrySelected"
         [dateSelectedString]="dateSelectedString"
@@ -21,4 +14,12 @@
         [deaths_plus]="deaths_plus"
         [recovered_plus]="recovered_plus">
     </app-info-card>
+    <app-trend-chart
+        [world]="vm.world"
+        [trendData]="vm.trend_ncov"
+        [dataTypeSelected]="vm.dataTypeSelected"
+        (selectCountry)="onSelectCountry($event)">
+    </app-trend-chart>
+    <app-line-chart 
+        [lineData]="vm.line_ncov"></app-line-chart>
 </div>
