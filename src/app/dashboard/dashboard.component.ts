@@ -1,8 +1,6 @@
 import { Component } from '@angular/core';
-import { DataModel } from '../data/data.model';
-import { Observable, combineLatest } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
-import { map } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { DashboardService, DashboardState } from './dashboard.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -10,32 +8,42 @@ import { map } from 'rxjs/operators';
   styleUrls: ['./dashboard.component.css']
 })
 export class DashboardComponent {
-    // data: Observable<DataModel>;
-    trendData;
-    countryNameTable = {
-        'Taiwan*': 'Taiwan',
-        'Czechia': 'Czechia',
-        'US': 'United States',
-        'Korea, South': 'Korea',
-        'Bosnia and Herzegovina': 'Bosnia and Herz.'
-    };
-    constructor(private httpClient: HttpClient) {
-        // this.data = this.httpClient.get<DataModel>('assets/data.json');
+    
+    vm$: Observable<DashboardState> = this.dbService.vm$;
+    
+    dateSelectedString = '';
+    confirmed_plus = 0;
+    deaths_plus = 0;
+    recovered_plus = 0;
 
-
-
-        let world$ = this.httpClient.get('https://gist.githubusercontent.com/MaciejKus/61e9ff1591355b00c1c1caf31e76a668/raw/4a5d012dc2df1aae1c36e2fdd414c21824329452/combined2.json');
-        let ncov$ = this.httpClient.get('https://pomber.github.io/covid19/timeseries.json');
-        combineLatest(world$, ncov$).pipe(
-            map(([world, ncov]) => {
-                return { world, ncov };
-            })
-        ).subscribe(({ world, ncov }) => {
-            for (let key in this.countryNameTable) {
-                ncov[this.countryNameTable[key]] = ncov[key];
-                delete ncov[key];
+    constructor(private dbService: DashboardService) {
+        // setTimeout(() => {
+        //     this.dbService.updateCountrySelected('Taiwan');
+        //     this.dbService.updateDateSelected(40);
+        //     this.dbService.updateDataTypeSelected('deaths');
+        // }, 4000);
+        this.vm$.subscribe(vm => {
+            if(vm.line_ncov && vm.dateSelected > 0 && vm.line_ncov[vm.dateSelected]) {
+                this.dateSelectedString = vm.line_ncov[vm.dateSelected].date;
+                this.confirmed_plus = vm.line_ncov[vm.dateSelected].confirmed - vm.line_ncov[vm.dateSelected - 1].confirmed;
+                this.deaths_plus = vm.line_ncov[vm.dateSelected].deaths - vm.line_ncov[vm.dateSelected - 1].deaths;
+                this.recovered_plus = vm.line_ncov[vm.dateSelected].recovered - vm.line_ncov[vm.dateSelected - 1].recovered;
+            } else {
+                this.dateSelectedString = '2020-01-22';
+                this.confirmed_plus = 0;
+                this.deaths_plus = 0;
+                this.recovered_plus = 0;
             }
-            this.trendData = {world, ncov};
-        })
+        });
+    }
+
+    onSelectCountry(e) {
+        this.dbService.updateCountrySelected(e);
+    }
+    onSelectDataType(e) {
+        this.dbService.updateDataTypeSelected(e);
+    }
+    onSelectDate(e) {
+        this.dbService.updateDateSelected(e);
     }
 }

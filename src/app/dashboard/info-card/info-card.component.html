@@ -1,21 +1,30 @@
 <section class="basic-grid">
     <div class="card">
         <div class="card-title">Country Name</div>
-        <div class="card-content">Taiwan</div>
+        <div class="card-content">
+            <p>{{countrySelected}}<br/>
+            <label style="font-size: 18px;">({{dateSelectedString}})</label></p>
+        </div>
     </div>
     <div class="card">
         <div class="card-title">Confirmed Cases</div>
         <div class="card-content">
-            <p>15890<br/>
-            <label style="font-size: 18px;">(+11)</label></p>
+            <p>{{confirmed}}<br/>
+            <label style="font-size: 18px;">(+{{confirmed_plus}})</label></p>
         </div>
     </div>
     <div class="card">
-        <div class="card-title">Country Name</div>
-        <div class="card-content">Taiwan</div>
+        <div class="card-title">Deaths</div>
+        <div class="card-content">
+            <p>{{deaths}}<br/>
+            <label style="font-size: 18px;">(+{{deaths_plus}})</label></p>
+        </div>
     </div>
     <div class="card">
-        <div class="card-title">Country Name</div>
-        <div class="card-content">Taiwan</div>
+        <div class="card-title">Recovered</div>
+        <div class="card-content">
+            <p>{{recovered}}<br/>
+            <label style="font-size: 18px;">(+{{recovered_plus}})</label></p>
+        </div>
     </div>
 </section>

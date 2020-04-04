@@ -1,6 +1,6 @@
-import { Component, ViewChild, ElementRef, OnChanges, Input, ViewEncapsulation } from "@angular/core";
+import { Component, ViewChild, ElementRef, OnChanges, Input, ViewEncapsulation, Output, EventEmitter } from "@angular/core";
 import * as d3 from 'd3';
-import { feature } from 'topojson';;
+import { feature } from 'topojson';
 
 @Component({
     selector: 'app-trend-chart',
@@ -11,118 +11,95 @@ import { feature } from 'topojson';;
 export class TrendChartComponent implements OnChanges {
     @ViewChild('chart') private chartContainer: ElementRef;
 
-    // @Input() data: DataModel[];
+    @Input() world: any;
     @Input() trendData: any;
-    world;
-    ncovData;
+    @Input() dataTypeSelected: string;
+    @Output() selectCountry: EventEmitter<string> = new EventEmitter<string>()
+    chartObj: any;
 
     constructor() { }
     ngOnChanges() {
-        if (!this.trendData) { return; }
-        this.world = this.trendData.world;
-        this.ncovData = this.trendData.ncov;
-        this.createChart();
+        if (!this.chartContainer || !this.world || this.world.countries || !this.trendData || !this.dataTypeSelected) { return; }
+        if (!this.chartObj) {
+            this.chartObj = this.createChart();
+        } else {
+            this.updateChart();
+        }
+    }
+    
+
+
+    private updateChart() {
+        this.chartObj.g.g
+            .on('mousemove', this.chartObj.tooltipClosure(this.trendData))
+            .transition()
+            .duration(400)
+            .style('fill', this.chartObj.colorClosure(this.trendData, this.dataTypeSelected))
     }
 
-    // private updateChart() {
-    //     var a = d3.selectAll('.countries')
-    //         .transition()
-    //         .duration(1000)
-    //         .style('fill', '#FFFFFF');
-    //     console.log(a);
-    // }
-
-    private createChart(): void {
-        // d3.select('svg').remove();
-
-        const element = this.chartContainer.nativeElement;
+    private createChart(): any {
+        const chartObj: any = {}
+        chartObj.element = this.chartContainer.nativeElement;
 
 
-        const width = 962;
-        const height = 502;
+        chartObj.width = 962;
+        chartObj.height = 502;
 
 
-        let usa, canada;
-        let states;
+        // let usa, canada;
+        // let states;
 
-        let initX;
-        let mouseClicked = false;
-        let s = 1;
-        let rotated = 90;
+        chartObj.initX;
+        chartObj.mouseClicked = false;
+        chartObj.s = 1;
+        chartObj.rotated = 90;
 
-        let mouse;
+        chartObj.mouse;
 
-        const offsetL = document.getElementById('map').offsetLeft + 10;
-        const offsetT = document.getElementById('map').offsetTop + 10;
-        const tooltip = d3.select('#map')
+        chartObj.offsetL = document.getElementById('map').offsetLeft + 10;
+        chartObj.offsetT = document.getElementById('map').offsetTop + 10;
+        chartObj.tooltip = d3.select('#map')
             .append('div')
             .attr('class', 'tooptip hidden');
 
-        const projection = d3.geoMercator()
+        chartObj.projection = d3.geoMercator()
             .scale(153)
-            .translate([width / 2, height / 1.5])
-            .rotate([rotated, 0, 0])
+            .translate([chartObj.width / 2, chartObj.height / 1.5])
+            .rotate([chartObj.rotated, 0, 0])
 
-        const path = d3.geoPath().projection(projection);
+        chartObj.path = d3.geoPath().projection(chartObj.projection);
 
-
-        const zoom = d3.zoom()
-            .scaleExtent([1, 10])
-            .on('zoom', zoomed)
-            .on('end', zoomended);
-
-        const svg = d3.select(element).append('svg')
-            .attr('width', element.offsetWidth)
-            .attr('height', element.offsetHeight)
-            .on("wheel", function () {
-                initX = d3.mouse(this)[0];
-            })
-            .on("mousedown", function () {
-                d3.event.preventDefault();
-                if (s !== 1) return;
-                initX = d3.mouse(this)[0];
-                mouseClicked = true;
-            })
-            .call(zoom);
-
-        const g = svg.append('g');
-
-        function rotateMap(endX) {
-            projection.rotate([rotated + (endX - initX) * 360 / (s * width), 0, 0]);
-            g.selectAll('path').attr('d', path);
-        }
-
-        function zoomended() {
-            if (s !== 1) return;
-            if (mouse) {
-                rotated = rotated + ((mouse[0] - initX) * 360 / (s * width));
-                mouseClicked = false;
+        chartObj.zoomended = function() {
+            if (chartObj.s !== 1) return;
+            if (chartObj.mouse) {
+                chartObj.rotated = chartObj.rotated + ((chartObj.mouse[0] - chartObj.initX) * 360 / (chartObj.s * chartObj.width));
+                chartObj.mouseClicked = false;
             }
         }
 
-        function zoomed() {
+        chartObj.zoomed = function() {
             let t = [d3.event.transform.x, d3.event.transform.y];
-            s = d3.event.transform.k;
+            chartObj.s = d3.event.transform.k;
             let h = 0;
 
             t[0] = Math.min(
-                (width / height) * (s - 1),
-                Math.max(width * (1 - s), t[0])
+                (chartObj.width / chartObj.height) * (chartObj.s - 1),
+                Math.max(chartObj.width * (1 - chartObj.s), t[0])
             );
 
             t[1] = Math.min(
-                h * (s - 1) + h * s,
-                Math.max(height * (1 - s) - h * s, t[1])
+                h * (chartObj.s - 1) + h * chartObj.s,
+                Math.max(chartObj.height * (1 - chartObj.s) - h * chartObj.s, t[1])
             );
 
-            g.attr("transform", "translate(" + t + ")scale(" + s + ")");
+            chartObj.g.attr("transform", "translate(" + t + ")scale(" + chartObj.s + ")");
 
             // d3.selectAll(".boundary").style("stroke-width", 1 / s);
 
-            mouse = d3.mouse(this);
+            chartObj.mouse = d3.mouse(this);
 
-            if (s === 1 && mouseClicked) {
-                rotateMap(mouse[0]);
+            if (chartObj.s === 1 && chartObj.mouseClicked) {
+                chartObj.rotateMap(chartObj.mouse[0]);
                 return;
             }
             // if (s > 1.5) {
@@ -142,12 +119,39 @@ export class TrendChartComponent implements OnChanges {
             // }
         }
 
-        function tooltipClosure(ncovData: any) {
+        chartObj.zoom = d3.zoom()
+            .scaleExtent([1, 10])
+            .on('zoom', chartObj.zoomed)
+            .on('end', chartObj.zoomended);
+
+        chartObj.svg = d3.select(chartObj.element).append('svg')
+            .attr('width', chartObj.element.offsetWidth)
+            .attr('height', chartObj.element.offsetHeight)
+            .on("wheel", function () {
+                chartObj.initX = d3.mouse(this)[0];
+            })
+            .on("mousedown", function (d) {
+                d3.event.preventDefault();
+                if (chartObj.s !== 1) return;
+                chartObj.initX = d3.mouse(this)[0];
+                chartObj.mouseClicked = true;
+            })
+            .call(chartObj.zoom);
+
+        chartObj.g = chartObj.svg.append('g');
+
+        chartObj.rotateMap = function(endX) {
+            chartObj.projection.rotate([chartObj.rotated + (endX - chartObj.initX) * 360 / (chartObj.s * chartObj.width), 0, 0]);
+            chartObj.g.selectAll('path').attr('d', chartObj.path);
+        }
+
+
+        chartObj.tooltipClosure = function(ncovData: any) {
             return (d: any) => {
                 let confirmed = 'unknown';
                 let deaths = 'unknown';
                 let recovered = 'unknown';
-                if(ncovData[d.properties.name]) {
+                if (ncovData[d.properties.name]) {
                     let dataTemp = ncovData[d.properties.name][ncovData[d.properties.name].length - 1];
                     confirmed = dataTemp.confirmed;
                     deaths = dataTemp.deaths;
@@ -160,12 +164,12 @@ export class TrendChartComponent implements OnChanges {
                     death: ${deaths}<br>
                     recovered: ${recovered}
                 `;
-                let mouse = d3.mouse(svg.node())
+                let mouse = d3.mouse(chartObj.svg.node())
                     .map(function (d: any) { return parseInt(d); });
-                tooltip.classed('hidden', false)
+                chartObj.tooltip.classed('hidden', false)
                     .attr('style', `
-                        left: ${mouse[0] + offsetL}px;
-                        top: ${mouse[1] + offsetT}px;
+                        left: ${mouse[0] + chartObj.offsetL}px;
+                        top: ${mouse[1] + chartObj.offsetT}px;
                         color: #222;
                         background: #fff;
                         border-radius: 3px;
@@ -178,68 +182,80 @@ export class TrendChartComponent implements OnChanges {
                     `)
                     .html(label);
 
-                }
+            }
         }
 
-        function selected() {
+        chartObj.selected = function(d) {
             d3.select('.selected').classed('selected', false);
             d3.select(this).classed('selected', true);
         }
+        chartObj.selectedClosure = function(countryEmitter) {
+            return (d) => {
+                countryEmitter.emit(d.properties.name);
+                d3.select('.selected').classed('selected', false);
+                d3.select(`#${d.id}`).classed('selected', true);
+            }
+        }
 
-        function colorClosure(ncovData: any) {
+        chartObj.colorClosure = function(ncovData: any, dataTypeSelected: string) {
+            const colorPallete = {
+                confirmed: d3.schemeReds[9],
+                deaths: d3.schemeGreys[9],
+                recovered: d3.schemeBlues[9],
+            }
             return (d: any) => {
                 let countryName = d.properties.name;
+                let color = colorPallete[dataTypeSelected];
                 if(ncovData && ncovData[countryName]) {
-                    let confirmed = ncovData[countryName][ncovData[countryName].length - 1].confirmed;
+                    let dataNumber = ncovData[countryName][0][dataTypeSelected];
                     switch (true) {
-                        case (confirmed === 0):
-                            return '#F2F2F2';
-                        case (confirmed < 10):
-                            return '#FFE6E6';
-                        case (confirmed < 100):
-                            return '#FFB3B3';
-                        case (confirmed < 500):
-                            return '#FF8080';
-                        case (confirmed < 1000):
-                            return '#FF4D4D';
-                        case (confirmed < 5000):
-                            return '#FF1A1A';
-                        case (confirmed < 10000):
-                            return '#E60000';
-                        case (confirmed < 25000):
-                            return '#B30000';
-                        case (confirmed < 50000):
-                            return '#800000';
+                        case (dataNumber === 0):
+                            return color[0];
+                        case (dataNumber < 100):
+                            return color[1];
+                        case (dataNumber < 500):
+                            return color[2];
+                        case (dataNumber < 1000):
+                            return color[3];
+                        case (dataNumber < 5000):
+                            return color[4];
+                        case (dataNumber < 10000):
+                            return color[5];
+                        case (dataNumber < 100000):
+                            return color[6];
+                        case (dataNumber < 1000000):
+                            return color[7];
                         default:
-                            return '#4D0000';
+                            return color[8];
                 }
                 } else {
                     // console.log(ncovData);
                     // console.log(countryName);
                 }
-                return '#F2F2F2';
+                return '#FFFFFF';
 
             }
         }
-        
+
         let mapFeatures: any = (feature(this.world as any, (this.world as any).objects.countries));
-        g.append('g')
+        chartObj.g.g = chartObj.g.append('g')
             .attr('class', 'boundary')
             .selectAll('boundary')
             .data(mapFeatures.features)
             .enter().append('path')
-            .attr('d', path)
+            .attr('d', chartObj.path)
             .attr('name', function (d: any) { return d.properties.name; })
             .attr('id', function (d: any) { return d.id })
             .attr('class', 'countries')
-            .style('fill', colorClosure(this.ncovData))
-            .on('click', selected)
-            .on('mousemove', tooltipClosure(this.ncovData))
+            .style('fill', chartObj.colorClosure(this.trendData, this.dataTypeSelected))
+            // .on('click', chartObj.selected)
+            .on('click', chartObj.selectedClosure(this.selectCountry, this))
+            .on('mousemove', chartObj.tooltipClosure(this.trendData))
             .on('mouseout', function (d, i) {
-                tooltip.classed('hidden', true);
-             })
-            .attr('d', path);
-
+                chartObj.tooltip.classed('hidden', true);
+            })
+            .attr('d', chartObj.path);
+        return chartObj;
         // usa = d3.select('#USA');
         // canada = d3.select('#CAN');
         // let mapFeaturesStates: any = (feature(world as any, (world as any).objects.states));

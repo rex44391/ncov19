@@ -1,4 +1,4 @@
-import { Component, OnChanges } from '@angular/core';
+import { Component, OnChanges, Input } from '@angular/core';
 
 @Component({
     selector: 'app-info-card',
@@ -6,7 +6,13 @@ import { Component, OnChanges } from '@angular/core';
     styleUrls: ['./info-card.component.css'],
 })
 export class InfoCardComponent implements OnChanges {
-    ngOnChanges() {
-
-    }
+    @Input() countrySelected;
+    @Input() dateSelectedString;
+    @Input() confirmed;
+    @Input() deaths;
+    @Input() recovered;
+    @Input() confirmed_plus = 0;
+    @Input() deaths_plus = 0;
+    @Input() recovered_plus = 0;
+    ngOnChanges() {}
 }

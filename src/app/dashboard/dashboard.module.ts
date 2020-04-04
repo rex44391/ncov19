@@ -9,12 +9,14 @@ import { LineChartComponent } from './line-chart/line-chart.component';
 import { ControlPanelComponent } from './control-panel/control-panel.component';
 import { InfoCardComponent } from './info-card/info-card.component';
 import { DashboardService } from './dashboard.service';
+import { FormsModule } from '@angular/forms';
 
 @NgModule({
     imports: [
         CommonModule,
         HttpClientModule,
         DashboardRoutingModule,
+        FormsModule,
         ThirdPartyModule
     ],
     declarations: [

@@ -8,25 +8,34 @@ import * as d3 from 'd3';
   encapsulation: ViewEncapsulation.None
 })
 export class LineChartComponent implements OnChanges {
-  @Input() trendData: any;
-  ncovData;
-
+  @Input() lineData: any;
+  chartObj;
   constructor() {
   }
 
   ngOnChanges() {
-    if (!this.trendData) { return; }
-    this.ncovData = this.trendData.ncov;
-    let chartObj = this.createChart();
-    setTimeout(() => {
-      chartObj['data'].push({
-        date: "2020-04-01",
-        confirmed: 200000,
-        deaths: 8000,
-        recovered: 3000
-      });
-      chartObj['update_data']();
-    }, 2000);
+    if (!this.lineData) { return; }
+    if(!this.chartObj) {
+      this.chartObj = this.createChart();
+    } else {
+      this.chartObj['data'] = this.lineData;
+      this.chartObj['update_data']();
+    }
+    // setTimeout(() => {
+    //   chartObj['data'].push({
+    //     date: "2020-04-01",
+    //     confirmed: 200000,
+    //     deaths: 8000,
+    //     recovered: 3000
+    //   });
+    //   chartObj['data'].push({
+    //     date: "2020-04-02",
+    //     confirmed: 210000,
+    //     deaths: 8100,
+    //     recovered: 3100
+    //   });
+    //   chartObj['update_data']();
+    // }, 2000);
   }
 
 
@@ -34,19 +43,16 @@ export class LineChartComponent implements OnChanges {
   private createChart() {
     // d3.select('svg').remove();
     // let temp_y = 1900;
-    this.ncovData['United States'].forEach((d: any) => {
-      d.date = d3.timeFormat('%Y-%m-%d')(d3.timeParse('%Y-%m-%d')(d.date));
-    });
 
     let chartObj = {};
     const color = d3.scaleOrdinal(d3.schemeCategory10);
     const myColor = function (d) {
       if (d === 'confirmed') {
-        return '#ffbf00';
-      } else if (d === 'deaths') {
         return '#ff0000';
+      } else if (d === 'deaths') {
+        return '#404040';
       } else {
-        return '#33cc33';
+        return '#0099ff';
       }
     }
     let xName = 'date';
@@ -59,7 +65,7 @@ export class LineChartComponent implements OnChanges {
 
     chartObj['xAxisLable'] = axisLables.xAxis;
     chartObj['yAxisLable'] = axisLables.yAxis;
-    chartObj['data'] = this.ncovData['United States'];
+    chartObj['data'] = this.lineData;
     chartObj['margin'] = { top: 15, right: 60, bottom: 30, left: 50 };
     chartObj['width'] = 650 - chartObj['margin']['left'] - chartObj['margin']['right'];
     chartObj['height'] = 480 - chartObj['margin']['top'] - chartObj['margin']['bottom'];
@@ -197,12 +203,16 @@ export class LineChartComponent implements OnChanges {
       /* Force D3 to recalculate and update the line */
       for (var y in yObjs) {
         yObjs[y].path
+          .datum(chartObj['data'])
           .transition()
           .duration(500)
-          .attr("d", yObjs[y].line);
+          .attr("class", "line")
+          .attr("d", yObjs[y].line)
+          .style("stroke", myColor(y))
+          .attr("data-series", y)
+          .attr("d", yObjs[y].line)
       }
-
-
+      
       d3.selectAll(".focus.line").attr("y2", chartObj['height']);
 
       chartObj['chartDiv'].select('svg')
@@ -314,7 +324,7 @@ export class LineChartComponent implements OnChanges {
         let series = legend.append('div');
         series.append('div')
           .attr("class", "series-marker")
-          .style("background-color", color(y));
+          .style("background-color", myColor(y));
         series.append('p').text(y);
         yObjs[y].legend = series;
       }
@@ -342,7 +352,7 @@ export class LineChartComponent implements OnChanges {
           }
         }
         if (!i) return;
-        var d = chartObj['data'][i + 1];
+        var d = chartObj['data'][i];
         let minY = chartObj['height'];
         for (var y in yObjs) {
           yObjs[y].tooltip

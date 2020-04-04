@@ -63,6 +63,10 @@ input[type="radio"]:checked + label span {
   opacity: 1; /* Fully shown on mouse-over */
 }
 
+.slider:disabled {
+  background: black;
+}
+
 /* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
 .slider::-webkit-slider-thumb {
   -webkit-appearance: none; /* Override default look */
@@ -80,10 +84,11 @@ input[type="radio"]:checked + label span {
   cursor: pointer; /* Cursor on hover */
 }
 
+
 .btn {
   background-color: transparent;
   border: none; /* Remove borders */
-  font-size: 35px;
+  font-size: 30px;
   color: #f2f2f2; /* White text */
   margin-left: 5px;
   cursor: pointer; /* Mouse pointer on hover */
@@ -93,3 +98,5 @@ input[type="radio"]:checked + label span {
   font-weight: bolder;
   color: #5992b3;
 }
+
+button[hidden] { display: none; }
