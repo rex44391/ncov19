@@ -19,7 +19,7 @@ export class TrendChartComponent implements OnChanges {
 
     constructor() { }
     ngOnChanges() {
-        if (!this.chartContainer || !this.world || this.world.countries || !this.trendData || !this.dataTypeSelected) { return; }
+        if (!this.chartContainer || !this.world || !this.world.objects || !this.world.objects.countries || !this.trendData || !this.dataTypeSelected) { return; }
         if (!this.chartObj) {
             this.chartObj = this.createChart();
         } else {
