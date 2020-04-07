@@ -34,7 +34,7 @@ It has four parts: <br/>
 ## Further update
 
 I plan to complete rwd for all components to make it fit for small screen.<br/>
-Also, I will refactor the code to make it look more clean.<br/>
+Also, I will refactor the code to make it cleaner.<br/>
 (Maybe next long weekend in May)<br/>
 
 ## Credit
