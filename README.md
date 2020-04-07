@@ -10,7 +10,7 @@ I uploaded the page to [firebase hosting](https://covid19-d3js.web.app/dashboard
 
 ![image](https://github.com/rex44391/ncov19/blob/master/ncov19-dashboard.jpg)
 
-It has four parts:
+It has four parts: <br/>
 (1) a control panel which has a checkbox to let user select which kind of data <br/>
     they want to see on the world map and info card and <br/>
     a slider to control the time of data showed on line chart and world map<br/>
